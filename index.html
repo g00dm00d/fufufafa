@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="id">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>PRAKOM TERAMPIL KODAM-II SWJ</title>
+    <link
+      href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css"
+      rel="stylesheet"
+    />
+    <link rel="icon" href="/kemhanLogo.png" type="image/x-icon" />
+    <meta
+      name="description"
+      content="Rekap Pranata Komputer Terampil - Kemhan"
+    />
+  </head>
+  <body class="bg-gray-900 text-white">
+    <div class="container mx-auto p-6">
+      <h1 class="text-2xl font-bold mb-4 text-center">
+        PRANTA KOMPUTER TERAMPIL KODAM-II SWJ
+      </h1>
+
+      <div class="overflow-x-auto">
+        <table class="min-w-full bg-gray-800 border border-gray-700 text-white">
+          <thead>
+            <tr class="bg-gray-700">
+              <th class="py-1 px-2 border-b border-gray-600 text-center">
+                Rank
+              </th>
+              <th class="py-1 px-2 border-b border-gray-600 text-left">Nama</th>
+              <th class="py-1 px-2 border-b border-gray-600 text-center">
+                Nilai SKD
+              </th>
+              <th class="py-1 px-2 border-b border-gray-600 text-center">
+                Skala 100
+              </th>
+              <th class="py-1 px-2 border-b border-gray-600 text-center">
+                Bobot 40%
+              </th>
+              <th class="py-1 px-2 border-b border-gray-600 text-center">
+                KETERANGAN SKD
+              </th>
+              <th class="py-1 px-2 border-b border-gray-600 text-center">
+                Nilai SKB
+              </th>
+            </tr>
+          </thead>
+          <tbody id="resultTable">
+            <!-- Hasil akan dimasukkan di sini -->
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <script>
+      // Mengambil data dari file JSON
+      fetch("/data.json")
+        .then((response) => response.json())
+        .then((data) => {
+          const resultTable = document.getElementById("resultTable");
+          resultTable.innerHTML = ""; // Kosongkan hasil sebelumnya
+
+          // Tampilkan semua data dalam tabel
+          data.forEach((item, index) => {
+            const skala100SKD = ((item.nilaiSKD / 550) * 100).toFixed(3);
+            const bobotSKD = ((skala100SKD * 40) / 100).toFixed(3);
+
+            const tableRow = document.createElement("tr");
+            tableRow.className = "bg-gray-800 hover:bg-gray-700"; // Background dark dengan efek hover
+
+            // Peringkat
+            const rankCell = document.createElement("td");
+            rankCell.textContent = index + 1;
+            rankCell.className =
+              "py-1 px-2 border-b border-gray-600 text-center";
+
+            // Nama
+            const nameCell = document.createElement("td");
+            nameCell.textContent = item.nama;
+            nameCell.className = "py-1 px-2 border-b border-gray-600 text-left";
+
+            // Nilai SKD
+            const skdCell = document.createElement("td");
+            skdCell.textContent = item.nilaiSKD;
+            skdCell.className =
+              "py-1 px-2 border-b border-gray-600 text-center";
+
+            // Nilai SKD
+            const skalaSKDCell = document.createElement("td");
+            skalaSKDCell.textContent = skala100SKD;
+            skalaSKDCell.className =
+              "py-1 px-2 border-b border-gray-600 text-center";
+
+            // Nilai SKD
+            const bobotSKDCell = document.createElement("td");
+            bobotSKDCell.textContent = bobotSKD;
+            bobotSKDCell.className =
+              "py-1 px-2 border-b border-gray-600 text-center";
+
+            // Nilai SKD
+            const lokasiCell = document.createElement("td");
+            lokasiCell.textContent = item.ketSKD;
+            lokasiCell.className =
+              "py-1 px-2 border-b border-gray-600 text-center";
+
+            // Nilai SKD
+            const skbCell = document.createElement("td");
+            skbCell.textContent = 0;
+            skbCell.className =
+              "py-1 px-2 border-b border-gray-600 text-center";
+
+            // Tambahkan cell ke baris
+            tableRow.appendChild(rankCell);
+            tableRow.appendChild(nameCell);
+            tableRow.appendChild(skdCell);
+            tableRow.appendChild(skalaSKDCell);
+            tableRow.appendChild(bobotSKDCell);
+            tableRow.appendChild(lokasiCell);
+            tableRow.appendChild(skbCell);
+
+            // Tambahkan baris ke tabel
+            resultTable.appendChild(tableRow);
+          });
+        })
+        .catch((error) => console.error("Error fetching data:", error));
+    </script>
+  </body>
+</html>
