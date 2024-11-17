@@ -41,7 +41,19 @@
                 KETERANGAN SKD
               </th>
               <th class="py-1 px-2 border-b border-gray-600 text-center">
-                Nilai SKB
+                SKB CAT
+              </th>
+              <th class="py-1 px-2 border-b border-gray-600 text-center">
+                Psiko
+              </th>
+              <th class="py-1 px-2 border-b border-gray-600 text-center">
+                Kesehatan
+              </th>
+              <th class="py-1 px-2 border-b border-gray-600 text-center">
+                Bobot 60%
+              </th>
+              <th class="py-1 px-2 border-b border-gray-600 text-center">
+                Subtotal
               </th>
             </tr>
           </thead>
@@ -57,16 +69,32 @@
       fetch("/data.json")
         .then((response) => response.json())
         .then((data) => {
+          const sortedSKD = data
+            .map((item) => {
+              console.log(item);
+              const skala100SKD = ((item.nilaiSKD / 550) * 100).toFixed(3);
+              const bobotSKD = ((skala100SKD * 40) / 100).toFixed(3);
+
+              const skbCAT = (item.skbCAT / 500) * 0.5;
+              const psiko = (item.psiko / 100) * 0.25;
+              const kesehatan = (item.kesehatan / 100) * 0.25;
+
+              const skala100SKB = (skbCAT + psiko + kesehatan) * 100;
+              const bobotSKB = (skala100SKB * 60) / 100;
+
+              const subTotal = parseFloat(bobotSKD) + parseFloat(bobotSKB);
+
+              return { ...item, skala100SKD, bobotSKD, bobotSKB, subTotal };
+            })
+            .sort((a, b) => b.subTotal - a.subTotal);
+
           const resultTable = document.getElementById("resultTable");
-          resultTable.innerHTML = ""; // Kosongkan hasil sebelumnya
+          resultTable.innerHTML = "";
 
-          // Tampilkan semua data dalam tabel
-          data.forEach((item, index) => {
-            const skala100SKD = ((item.nilaiSKD / 550) * 100).toFixed(3);
-            const bobotSKD = ((skala100SKD * 40) / 100).toFixed(3);
-
+          sortedSKD.forEach((item, index) => {
+            console.log(item);
             const tableRow = document.createElement("tr");
-            tableRow.className = "bg-gray-800 hover:bg-gray-700"; // Background dark dengan efek hover
+            tableRow.className = "bg-gray-800 hover:bg-gray-700";
 
             // Peringkat
             const rankCell = document.createElement("td");
@@ -85,28 +113,52 @@
             skdCell.className =
               "py-1 px-2 border-b border-gray-600 text-center";
 
-            // Nilai SKD
+            // SKALA
             const skalaSKDCell = document.createElement("td");
-            skalaSKDCell.textContent = skala100SKD;
+            skalaSKDCell.textContent = item.skala100SKD;
             skalaSKDCell.className =
               "py-1 px-2 border-b border-gray-600 text-center";
 
-            // Nilai SKD
+            // BOBOT SKD
             const bobotSKDCell = document.createElement("td");
-            bobotSKDCell.textContent = bobotSKD;
+            bobotSKDCell.textContent = item.bobotSKD;
             bobotSKDCell.className =
               "py-1 px-2 border-b border-gray-600 text-center";
 
-            // Nilai SKD
+            // Keterangan SKD
             const lokasiCell = document.createElement("td");
             lokasiCell.textContent = item.ketSKD;
             lokasiCell.className =
               "py-1 px-2 border-b border-gray-600 text-center";
 
-            // Nilai SKD
-            const skbCell = document.createElement("td");
-            skbCell.textContent = 0;
-            skbCell.className =
+            // SKB CAT
+            const skbCATCell = document.createElement("td");
+            skbCATCell.textContent = item.skbCAT;
+            skbCATCell.className =
+              "py-1 px-2 border-b border-gray-600 text-center";
+
+            // Psikotes
+            const psikoCell = document.createElement("td");
+            psikoCell.textContent = item.psiko;
+            psikoCell.className =
+              "py-1 px-2 border-b border-gray-600 text-center";
+
+            // Kesehatan
+            const kesehatanCell = document.createElement("td");
+            kesehatanCell.textContent = item.kesehatan;
+            kesehatanCell.className =
+              "py-1 px-2 border-b border-gray-600 text-center";
+
+            // Bobot SKB
+            const bobotSKBCell = document.createElement("td");
+            bobotSKBCell.textContent = item.bobotSKB;
+            bobotSKBCell.className =
+              "py-1 px-2 border-b border-gray-600 text-center";
+
+            // Subtotal
+            const SubtotalCell = document.createElement("td");
+            SubtotalCell.textContent = item.subTotal.toFixed(3);
+            SubtotalCell.className =
               "py-1 px-2 border-b border-gray-600 text-center";
 
             // Tambahkan cell ke baris
@@ -116,7 +168,11 @@
             tableRow.appendChild(skalaSKDCell);
             tableRow.appendChild(bobotSKDCell);
             tableRow.appendChild(lokasiCell);
-            tableRow.appendChild(skbCell);
+            tableRow.appendChild(skbCATCell);
+            tableRow.appendChild(psikoCell);
+            tableRow.appendChild(kesehatanCell);
+            tableRow.appendChild(bobotSKBCell);
+            tableRow.appendChild(SubtotalCell);
 
             // Tambahkan baris ke tabel
             resultTable.appendChild(tableRow);
