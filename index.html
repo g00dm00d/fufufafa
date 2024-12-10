@@ -20,6 +20,25 @@
         PRANTA KOMPUTER TERAMPIL KODAM-II SWJ
       </h1>
 
+      <!-- Dropdown untuk memilih opsi -->
+      <div class="mb-4 text-center">
+        <label for="optionSelect" class="block mb-2">Pilih Opsi SKB:</label>
+        <select
+          id="optionSelect"
+          class="bg-gray-800 text-white px-4 py-2 rounded"
+        >
+          <option value="1">
+            Opsi 1 (SKB CAT 50% - PSIKOTES 25% - KESEHATAN 25%)
+          </option>
+          <option value="2">
+            Opsi 2 (SKB CAT 60% - PSIKOTES 20% - KESEHATAN 20%)
+          </option>
+          <option value="3">
+            Opsi 3 (SKB CAT 70% - PSIKOTES 15% - KESEHATAN 15%)
+          </option>
+        </select>
+      </div>
+
       <div class="overflow-x-auto">
         <table class="min-w-full bg-gray-800 border border-gray-700 text-white">
           <thead>
@@ -38,7 +57,7 @@
                 Bobot 40%
               </th>
               <th class="py-1 px-2 border-b border-gray-600 text-center">
-                KETERANGAN SKD
+                Lokasi SKB
               </th>
               <th class="py-1 px-2 border-b border-gray-600 text-center">
                 SKB CAT
@@ -65,128 +84,100 @@
     </div>
 
     <script>
-      // Mengambil data dari file JSON
-      fetch("/data.json")
-        .then((response) => response.json())
-        .then((data) => {
-          const sortedSKD = data
-            .map((item) => {
-              console.log(item);
-              const skala100SKD = ((item.nilaiSKD / 550) * 100).toFixed(3);
-              const bobotSKD = ((skala100SKD * 40) / 100).toFixed(3);
+      const fetchDataAndRender = () => {
+        const option = document.getElementById("optionSelect").value;
 
-              const skbCAT = (item.skbCAT / 500) * 0.5;
-              const psiko = (item.psiko / 100) * 0.25;
-              const kesehatan = (item.kesehatan / 100) * 0.25;
+        fetch("/data.json")
+          .then((response) => response.json())
+          .then((data) => {
+            const sortedSKD = data
+              .map((item) => {
+                const skala100SKD = ((item.nilaiSKD / 550) * 100).toFixed(3);
+                const bobotSKD = ((skala100SKD * 40) / 100).toFixed(3);
 
-              const skala100SKB = (skbCAT + psiko + kesehatan) * 100;
-              const bobotSKB = (skala100SKB * 60) / 100;
+                let skbCAT, psiko, kesehatan;
 
-              const subTotal = parseFloat(bobotSKD) + parseFloat(bobotSKB);
+                if (option === "1") {
+                  skbCAT = (item.skbCAT / 500) * 0.5;
+                  psiko = (item.psiko / 100) * 0.25;
+                  kesehatan = (item.kesehatan / 100) * 0.25;
+                } else if (option === "2") {
+                  skbCAT = (item.skbCAT / 500) * 0.6;
+                  psiko = (item.psiko / 100) * 0.2;
+                  kesehatan = (item.kesehatan / 100) * 0.2;
+                } else {
+                  skbCAT = (item.skbCAT / 500) * 0.7;
+                  psiko = (item.psiko / 100) * 0.15;
+                  kesehatan = (item.kesehatan / 100) * 0.15;
+                }
 
-              return { ...item, skala100SKD, bobotSKD, bobotSKB, subTotal };
-            })
-            .sort((a, b) => b.subTotal - a.subTotal);
+                const skala100SKB = (
+                  (skbCAT + psiko + kesehatan) *
+                  100
+                ).toFixed(3);
+                const bobotSKB = (skala100SKB * 60) / 100;
 
-          const resultTable = document.getElementById("resultTable");
-          resultTable.innerHTML = "";
+                const subTotal = parseFloat(bobotSKD) + parseFloat(bobotSKB);
 
-          sortedSKD.forEach((item, index) => {
-            console.log(item);
-            const tableRow = document.createElement("tr");
-            tableRow.className = "bg-gray-800 hover:bg-gray-700";
+                return { ...item, skala100SKD, bobotSKD, bobotSKB, subTotal };
+              })
+              .sort((a, b) => b.subTotal - a.subTotal);
 
-            // Peringkat
-            const rankCell = document.createElement("td");
-            rankCell.textContent = index + 1;
-            rankCell.className =
-              "py-1 px-2 border-b border-gray-600 text-center";
+            const resultTable = document.getElementById("resultTable");
+            resultTable.innerHTML = "";
 
-            // Nama
-            const nameCell = document.createElement("td");
-            nameCell.textContent = item.nama;
-            nameCell.className = "py-1 px-2 border-b border-gray-600 text-left";
+            sortedSKD.forEach((item, index) => {
+              const tableRow = document.createElement("tr");
+              tableRow.className = "bg-gray-800 hover:bg-gray-700";
 
-            // Nilai SKD
-            const skdCell = document.createElement("td");
-            skdCell.textContent = item.nilaiSKD;
-            skdCell.className =
-              "py-1 px-2 border-b border-gray-600 text-center";
+              tableRow.innerHTML = `
+                <td class="py-1 px-2 border-b border-gray-600 text-center">${
+                  index + 1
+                }</td>
+                <td class="py-1 px-2 border-b border-gray-600 text-left">${
+                  item.nama
+                }</td>
+                <td class="py-1 px-2 border-b border-gray-600 text-center">${
+                  item.nilaiSKD
+                }</td>
+                <td class="py-1 px-2 border-b border-gray-600 text-center">${
+                  item.skala100SKD
+                }</td>
+                <td class="py-1 px-2 border-b border-gray-600 text-center">${
+                  item.bobotSKD
+                }</td>
+                <td class="py-1 px-2 border-b border-gray-600 text-center">${
+                  item.ketSKB
+                }</td>
+                <td class="py-1 px-2 border-b border-gray-600 text-center">${
+                  item.skbCAT
+                }</td>
+                <td class="py-1 px-2 border-b border-gray-600 text-center">${
+                  item.psiko
+                }</td>
+                <td class="py-1 px-2 border-b border-gray-600 text-center">${
+                  item.kesehatan
+                }</td>
+                <td class="py-1 px-2 border-b border-gray-600 text-center">${item.bobotSKB.toFixed(
+                  3
+                )}</td>
+                <td class="py-1 px-2 border-b border-gray-600 text-center">${item.subTotal.toFixed(
+                  3
+                )}</td>
+              `;
+              resultTable.appendChild(tableRow);
+            });
+          })
+          .catch((error) => console.error("Error fetching data:", error));
+      };
 
-            // SKALA
-            const skalaSKDCell = document.createElement("td");
-            skalaSKDCell.textContent = item.skala100SKD;
-            skalaSKDCell.className =
-              "py-1 px-2 border-b border-gray-600 text-center";
+      // Panggil fungsi saat dropdown berubah
+      document
+        .getElementById("optionSelect")
+        .addEventListener("change", fetchDataAndRender);
 
-            // BOBOT SKD
-            const bobotSKDCell = document.createElement("td");
-            bobotSKDCell.textContent = item.bobotSKD;
-            bobotSKDCell.className =
-              "py-1 px-2 border-b border-gray-600 text-center";
-
-            // Keterangan SKD
-            const lokasiCell = document.createElement("td");
-            lokasiCell.textContent = item.ketSKD;
-            lokasiCell.className =
-              "py-1 px-2 border-b border-gray-600 text-center";
-
-            // SKB CAT
-            const skbCATCell = document.createElement("td");
-            skbCATCell.textContent = item.skbCAT;
-            skbCATCell.className =
-              "py-1 px-2 border-b border-gray-600 text-center";
-
-            // Psikotes
-            const psikoCell = document.createElement("td");
-            psikoCell.textContent = item.psiko;
-            psikoCell.className =
-              "py-1 px-2 border-b border-gray-600 text-center";
-
-            // Kesehatan
-            const kesehatanCell = document.createElement("td");
-            kesehatanCell.textContent = item.kesehatan;
-            kesehatanCell.className =
-              "py-1 px-2 border-b border-gray-600 text-center";
-
-            // Bobot SKB
-            const bobotSKBCell = document.createElement("td");
-            bobotSKBCell.textContent = item.bobotSKB;
-            bobotSKBCell.className =
-              "py-1 px-2 border-b border-gray-600 text-center";
-
-            // Subtotal
-            const SubtotalCell = document.createElement("td");
-            SubtotalCell.textContent = item.subTotal.toFixed(3);
-            SubtotalCell.className =
-              "py-1 px-2 border-b border-gray-600 text-center";
-
-            // Tambahkan cell ke baris
-            tableRow.appendChild(rankCell);
-            tableRow.appendChild(nameCell);
-            tableRow.appendChild(skdCell);
-            tableRow.appendChild(skalaSKDCell);
-            tableRow.appendChild(bobotSKDCell);
-            tableRow.appendChild(lokasiCell);
-            tableRow.appendChild(skbCATCell);
-            tableRow.appendChild(psikoCell);
-            tableRow.appendChild(kesehatanCell);
-            tableRow.appendChild(bobotSKBCell);
-            tableRow.appendChild(SubtotalCell);
-
-            // Tambahkan baris ke tabel
-            resultTable.appendChild(tableRow);
-          });
-        })
-        .catch((error) => console.error("Error fetching data:", error));
+      // Panggil fungsi saat halaman dimuat
+      fetchDataAndRender();
     </script>
-    <script>
-      window.va =
-        window.va ||
-        function () {
-          (window.vaq = window.vaq || []).push(arguments);
-        };
-    </script>
-    <script defer src="/_vercel/insights/script.js"></script>
   </body>
 </html>
