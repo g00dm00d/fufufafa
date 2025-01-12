@@ -20,17 +20,19 @@
         PRAKOMTER KODAM-II SWJ
       </h1>
 
-      <!-- Dropdown untuk memilih opsi -->
       <div class="mb-4 text-center">
-        <label for="optionSelect" class="block mb-2">Pilih Opsi SKB:</label>
-        <select
-          id="optionSelect"
-          class="bg-gray-800 text-white px-4 py-2 rounded"
+        <button
+          id="togglePsikoButton"
+          class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
         >
-          <option value="1">SKB CAT 50% - PSI 25% - KES 25%</option>
-          <option value="2">SKB CAT 60% - PSI 20% - KES 20%</option>
-          <option value="3">SKB CAT 70% - PSI 15% - KES 15%</option>
-        </select>
+          Psikotes (ORI)
+        </button>
+        <button
+          id="toggleKesehatanButton"
+          class="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded ml-2"
+        >
+          Kesehatan (ORI)
+        </button>
       </div>
 
       <div class="overflow-x-auto">
@@ -53,9 +55,7 @@
               <th class="py-1 px-2 border-b border-gray-600 text-center">
                 Bobot 40%
               </th>
-              <th class="py-1 px-2 border-b border-gray-600 text-center">
-                Lokasi SKB
-              </th>
+
               <th class="py-1 px-2 border-b border-gray-600 text-center">
                 SKB CAT
               </th>
@@ -71,6 +71,9 @@
               <th class="py-1 px-2 border-b border-gray-600 text-center">
                 Subtotal
               </th>
+              <th class="py-1 px-2 border-b border-gray-600 text-center">
+                Keterangan
+              </th>
             </tr>
           </thead>
           <tbody id="resultTable">
@@ -81,8 +84,11 @@
     </div>
 
     <script>
+      let overridePsiko = false; // Menentukan apakah nilai psiko di-override
+      let overrideKesehatan = false; // Menentukan apakah nilai kesehatan di-override
+
       const fetchDataAndRender = () => {
-        const option = document.getElementById("optionSelect").value;
+        const option = "1"; // Selalu gunakan opsi pertama
 
         fetch("/data.json")
           .then((response) => response.json())
@@ -94,19 +100,13 @@
 
                 let skbCAT, psiko, kesehatan;
 
-                if (option === "1") {
-                  skbCAT = (item.skbCAT / 500) * 0.5;
-                  psiko = (item.psiko / 100) * 0.25;
-                  kesehatan = (item.kesehatan / 100) * 0.25;
-                } else if (option === "2") {
-                  skbCAT = (item.skbCAT / 500) * 0.6;
-                  psiko = (item.psiko / 100) * 0.2;
-                  kesehatan = (item.kesehatan / 100) * 0.2;
-                } else {
-                  skbCAT = (item.skbCAT / 500) * 0.7;
-                  psiko = (item.psiko / 100) * 0.15;
-                  kesehatan = (item.kesehatan / 100) * 0.15;
-                }
+                // Atur nilai psiko dan kesehatan berdasarkan toggle
+                const psikoValue = overridePsiko ? 100 : item.psiko;
+                const kesehatanValue = overrideKesehatan ? 100 : item.kesehatan;
+
+                skbCAT = (item.skbCAT / 500) * 0.5;
+                psiko = (psikoValue / 100) * 0.45;
+                kesehatan = (kesehatanValue / 100) * 0.05;
 
                 const skala100SKB = (
                   (skbCAT + psiko + kesehatan) *
@@ -128,53 +128,70 @@
               tableRow.className = "bg-gray-800 hover:bg-gray-700";
 
               tableRow.innerHTML = `
-                <td class="py-1 px-2 border-b border-gray-600 text-center">${
-                  index + 1
-                }</td>
-                <td class="py-1 px-2 border-b border-gray-600 text-left">${
-                  item.nama
-                }</td>
-                <td class="py-1 px-2 border-b border-gray-600 text-center">${
-                  item.jurusan
-                }</td>
-                <td class="py-1 px-2 border-b border-gray-600 text-center">${
-                  item.nilaiSKD
-                }</td>
-                <td class="py-1 px-2 border-b border-gray-600 text-center">${
-                  item.skala100SKD
-                }</td>
-                <td class="py-1 px-2 border-b border-gray-600 text-center">${
-                  item.bobotSKD
-                }</td>
-                <td class="py-1 px-2 border-b border-gray-600 text-center">${
-                  item.ketSKB
-                }</td>
-                <td class="py-1 px-2 border-b border-gray-600 text-center">${
-                  item.skbCAT
-                }</td>
-                <td class="py-1 px-2 border-b border-gray-600 text-center">${
-                  item.psiko
-                }</td>
-                <td class="py-1 px-2 border-b border-gray-600 text-center">${
-                  item.kesehatan
-                }</td>
-                <td class="py-1 px-2 border-b border-gray-600 text-center">${item.bobotSKB.toFixed(
-                  3
-                )}</td>
-                <td class="py-1 px-2 border-b border-gray-600 text-center">${item.subTotal.toFixed(
-                  3
-                )}</td>
-              `;
+            <td class="py-1 px-2 border-b border-gray-600 text-center">${
+              index + 1
+            }</td>
+            <td class="py-1 px-2 border-b border-gray-600 text-left">${
+              item.nama
+            }</td>
+            <td class="py-1 px-2 border-b border-gray-600 text-center">${
+              item.jurusan
+            }</td>
+            <td class="py-1 px-2 border-b border-gray-600 text-center">${
+              item.nilaiSKD
+            }</td>
+            <td class="py-1 px-2 border-b border-gray-600 text-center">${
+              item.skala100SKD
+            }</td>
+            <td class="py-1 px-2 border-b border-gray-600 text-center">${
+              item.bobotSKD
+            }</td>
+            
+            <td class="py-1 px-2 border-b border-gray-600 text-center">${
+              item.skbCAT
+            }</td>
+            <td class="py-1 px-2 border-b border-gray-600 text-center">${
+              overridePsiko ? 100 : item.psiko
+            }</td>
+            <td class="py-1 px-2 border-b border-gray-600 text-center">${
+              overrideKesehatan ? 100 : item.kesehatan
+            }</td>
+            <td class="py-1 px-2 border-b border-gray-600 text-center">${item.bobotSKB.toFixed(
+              3
+            )}</td>
+            <td class="py-1 px-2 border-b border-gray-600 text-center">${item.subTotal.toFixed(
+              3
+            )}</td>
+            <td class="py-1 px-2 border-b border-gray-600 text-center">${
+              item.keterangan
+            }</td>
+          `;
               resultTable.appendChild(tableRow);
             });
           })
           .catch((error) => console.error("Error fetching data:", error));
       };
 
-      // Panggil fungsi saat dropdown berubah
+      // Fungsi untuk toggle nilai psikotes
       document
-        .getElementById("optionSelect")
-        .addEventListener("change", fetchDataAndRender);
+        .getElementById("togglePsikoButton")
+        .addEventListener("click", () => {
+          overridePsiko = !overridePsiko;
+          document.getElementById(
+            "togglePsikoButton"
+          ).textContent = `Psikotes (${overridePsiko ? "100" : "ORI"})`;
+          fetchDataAndRender();
+        });
+
+      document
+        .getElementById("toggleKesehatanButton")
+        .addEventListener("click", () => {
+          overrideKesehatan = !overrideKesehatan;
+          document.getElementById(
+            "toggleKesehatanButton"
+          ).textContent = `Kesehatan (${overrideKesehatan ? "100" : "ORI"})`;
+          fetchDataAndRender();
+        });
 
       // Panggil fungsi saat halaman dimuat
       fetchDataAndRender();
